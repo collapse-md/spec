@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>COLLAPSE.md — AI Agent Context Collapse Prevention</title>
-  <meta name="description" content="COLLAPSE.md is an open file convention for preventing AI agent context collapse. Detect context window exhaustion, model drift, and repetition loops. Define summarization checkpoints and coherence recovery protocols.">
+  <meta name="description" content="COLLAPSE.md: AI context collapse prevention. Detect window exhaustion, model drift, repetition loops, define checkpoints, coherence recovery, re-summarization rules.">
   <meta name="keywords" content="AI context collapse, COLLAPSE.md, context window exhaustion, model drift, AI agent coherence, context summarization, AI safety">
   <link rel="canonical" href="https://collapse.md/">
 
   <!-- Open Graph -->
   <meta property="og:title" content="COLLAPSE.md — AI Agent Context Collapse Prevention">
-  <meta property="og:description" content="An open file convention for preventing AI agent context collapse. Detect context window exhaustion, model drift, and repetition loops. Define summarization checkpoints and coherence recovery protocols.">
+  <meta property="og:description" content="COLLAPSE.md: AI context collapse prevention. Detect window exhaustion, model drift, repetition loops, define checkpoints, coherence recovery, re-summarization rules.">
   <meta property="og:url" content="https://collapse.md/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
@@ -34,7 +35,7 @@
     "email": "info@collapse.md",
     "description": "COLLAPSE.md is an open file convention for AI agent context collapse prevention. Defines TRIGGERS (context window exhaustion, model drift, repetition loops), PREVENTION (summarization checkpoints, drift detection, context rotation), and RECOVERY protocols.",
     "knowsAbout": ["AI context collapse", "context window exhaustion", "model drift", "AI agent coherence", "context compression", "COLLAPSE.md specification"],
-    "sameAs": ["https://github.com/collapse-md/spec", "https://killswitch.md", "https://throttle.md", "https://escalate.md", "https://failsafe.md", "https://terminate.md", "https://encrypt.md", "https://encryption.md", "https://sycophancy.md", "https://compression.md", "https://failure.md", "https://leaderboard.md"]
+    "sameAs": ["https://killswitch.md", "https://throttle.md", "https://escalate.md", "https://failsafe.md", "https://terminate.md", "https://encrypt.md", "https://encryption.md", "https://sycophancy.md", "https://compression.md", "https://collapse.md", "https://failure.md", "https://leaderboard.md", "https://github.com/Collapse-md/spec"]
   }
   </script>
 
@@ -853,6 +854,7 @@
     </ul>
   </nav>
 
+  <main>
   <!-- HERO -->
   <section class="hero">
     <div class="hero-grid">
@@ -932,6 +934,7 @@
     </div>
   </div>
 
+  <article>
   <!-- WHAT IS -->
   <section class="section" id="what">
     <div class="section-inner">
@@ -942,21 +945,21 @@
           <p>
             <strong>COLLAPSE.md is a plain-text Markdown file</strong> you place in the root of any AI agent repository. It defines the conditions under which a long-running agent's context becomes degraded — and what the agent must do to recover.
           </p>
-          <h3>The problem it solves</h3>
+          <h3>What problem does COLLAPSE.md solve?</h3>
           <p>
             AI agents operating in long sessions face a hidden failure mode: as context fills, quality degrades silently. The agent continues generating outputs, but the reasoning becomes circular, facts get confused, and earlier instructions are forgotten. Without explicit controls, there's no mechanism to detect this — or to recover gracefully.
           </p>
-          <h3>How it works</h3>
+          <h3>How does COLLAPSE.md work?</h3>
           <p>
             Drop <code style="font-family: var(--mono); font-size:13px; color: var(--green); background: var(--surface); padding: 2px 6px; border-radius: 3px;">COLLAPSE.md</code> in your repo root and define: context utilisation thresholds, drift detection sensitivity, repetition loop detection, and summarization checkpoint intervals. The agent checks these conditions continuously. When a trigger fires, it compresses, checkpoints, and notifies — rather than silently degrading.
           </p>
-          <h3>The regulatory context</h3>
+          <h3>What regulations require COLLAPSE.md?</h3>
           <p>
             The EU AI Act (effective 2 August 2026) requires AI systems to maintain consistent behaviour throughout their operation. COLLAPSE.md provides the documented controls and audit trail that coherence monitoring requires.
           </p>
         </div>
         <div class="prose">
-          <h3>How to use it</h3>
+          <h3>How do I add COLLAPSE.md to my project?</h3>
           <p>Copy the template from <a href="https://github.com/Collapse-md/spec" style="color: var(--violet); text-decoration: none; border-bottom: 1px solid rgba(124,77,255,0.3);">GitHub</a> and place it in your project root:</p>
           <div style="background: var(--surface); border: 1px solid var(--border-bright); border-radius: 6px; padding: 20px; margin: 16px 0; font-family: var(--mono); font-size: 12px; line-height: 1.8; color: var(--text-dim);">
             <span style="color: var(--text-dimmer);">your-project/</span><br>
@@ -966,11 +969,11 @@
             <span style="color: var(--text-dimmer);">├── README.md</span><br>
             <span style="color: var(--text-dimmer);">└── src/</span>
           </div>
-          <h3>What it replaces</h3>
+          <h3>What did teams use before COLLAPSE.md?</h3>
           <p>
             Before COLLAPSE.md, coherence monitoring was either absent or buried in custom system prompt instructions no one updated. COLLAPSE.md makes context health controls <strong>version-controlled, auditable, and co-located with your code.</strong>
           </p>
-          <h3>Who reads it</h3>
+          <h3>Who benefits from COLLAPSE.md?</h3>
           <p>
             The AI agent reads it on startup. Your engineer reads it during code review. Your compliance team reads it during audits. Your regulator reads it if something goes wrong. One file serves all four audiences.
           </p>
@@ -1129,6 +1132,8 @@
       <div class="last-updated-date">13 March 2026</div>
     </div>
   </div>
+  </article>
+  </main>
 
   <!-- FOOTER -->
   <footer>
@@ -1137,6 +1142,7 @@
       <li><a href="https://github.com/Collapse-md/spec" target="_blank" rel="noopener">GitHub</a></li>
       <li><a href="/llms.txt">llms.txt</a></li>
       <li><a href="/knowledge">Knowledge</a></li>
+      <li><a href="/privacy">Privacy</a></li>
       <li><a href="mailto:info@collapse.md">Contact</a></li>
     </ul>
     <div class="footer-note">Open standard · MIT licence · v1.0 · 2026</div>
