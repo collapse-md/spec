@@ -1,0 +1,611 @@
+# COLLAPSE.md — AI Agent Context Collapse Prevention (Full Reference)
+
+**Home:** https://collapse.md
+**Repository:** https://github.com/Collapse-md/spec
+**Related Domains:** https://throttle.md, https://escalate.md, https://failsafe.md, https://killswitch.md, https://terminate.md, https://encrypt.md, https://encryption.md, https://sycophancy.md, https://compression.md, https://failure.md, https://leaderboard.md
+
+---
+
+## What is COLLAPSE.md?
+
+COLLAPSE.md is a plain-text Markdown file convention for detecting and preventing context collapse in long-running AI agents. It defines thresholds for context degradation triggers and specifies the recovery protocol when those thresholds are crossed.
+
+### Key Facts
+
+- **Plain-text file** — Version-controlled, auditable, co-located with code
+- **Declarative** — Define policy, agent implementation enforces it
+- **Framework-agnostic** — Works with LangChain, AutoGen, CrewAI, Claude Code, or custom agents
+- **Reactive control** — Complements COMPRESSION.md (proactive) with collapse detection and recovery
+- **Regulatory alignment** — Meets EU AI Act requirements for consistent AI behaviour monitoring
+
+---
+
+## The Context Collapse Problem
+
+### What is Context Collapse?
+
+As AI agents operate over long sessions, their context window fills with conversation history, tool outputs, and intermediate reasoning. Beyond token limits, quality degrades silently:
+
+1. **Reasoning becomes circular** — Agent repeats the same reasoning steps
+2. **Earlier facts are forgotten** — Earlier instructions and decisions are lost
+3. **Output quality drops** — Answers become less accurate and less helpful
+4. **Model drift occurs** — Outputs diverge from the agent's initial reasoning patterns
+
+The agent continues generating text, but coherence has degraded. There is no built-in alarm; degradation is discovered after the fact.
+
+### Four Types of Degradation
+
+COLLAPSE.md monitors four specific failure modes:
+
+1. **Context Window Exhaustion** (85% threshold)
+   - Agent approaches token limit
+   - Action: Summarize and rotate context using COMPRESSION.md rules
+
+2. **Model Drift** (0.30 cosine distance threshold)
+   - Current outputs diverge from baseline embedding
+   - Measured via: cosine distance of recent output vs baseline from first 10 turns
+   - Action: Reset reasoning and re-anchor from last checkpoint
+
+3. **Repetition Loops** (20% threshold)
+   - Agent recycles the same tokens / ideas repeatedly
+   - Measured via: n-gram frequency analysis
+   - Action: Interrupt task and log evidence
+
+4. **Coherence Degradation** (structural consistency check)
+   - Reasoning chain becomes internally inconsistent
+   - Measured via: semantic consistency of task constraints vs outputs
+   - Action: Pause and request human review
+
+---
+
+## How COLLAPSE.md Works
+
+### TRIGGERS Section
+
+Define when collapse is detected:
+
+```yaml
+# COLLAPSE
+
+> Context collapse prevention.
+> Spec: https://collapse.md
+
+---
+
+## TRIGGERS
+
+context_window_exhaustion:
+  threshold_pct: 0.85
+  action: summarize_and_rotate
+
+model_drift:
+  drift_threshold: 0.30
+  cosine_distance_metric: true
+  action: reset_and_checkpoint
+
+repetition_loops:
+  max_repeated_tokens_pct: 0.20
+  window_size_tokens: 5000
+  action: interrupt_and_log
+
+coherence_degradation:
+  enabled: true
+  consistency_threshold: 0.70
+  action: pause_and_notify
+```
+
+**threshold_pct** — Percentage of context window before action triggers (default 85%)
+**drift_threshold** — Cosine distance indicating outputs diverge from baseline (default 0.30)
+**max_repeated_tokens_pct** — Percentage of repeated tokens indicating loop (default 20%)
+**consistency_threshold** — Structural coherence score (0-1, default 0.70)
+
+### PREVENTION Section
+
+Proactive controls before collapse occurs:
+
+```yaml
+## PREVENTION
+
+summarization_checkpoints:
+  enabled: true
+  interval_tokens: 40000
+  preserve_last_n_turns: 5
+  preserve_system_prompt: true
+  preserve_task_context: true
+
+context_rotation:
+  strategy: sliding_window
+  window_size_tokens: 80000
+  overlap_tokens: 10000
+
+drift_detection:
+  enabled: true
+  baseline_turns: 10
+  check_interval_turns: 5
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+
+repetition_detection:
+  enabled: true
+  ngram_size: 5
+  check_interval_tokens: 5000
+```
+
+**interval_tokens** — Compress context every N tokens (default 40,000)
+**preserve_last_n_turns** — Keep last N conversation turns verbatim (default 5)
+**baseline_turns** — Establish drift baseline from first N turns (default 10)
+**check_interval_turns** — Check drift every N turns (default 5)
+
+### RECOVERY Section
+
+Steps to take when collapse is detected:
+
+```yaml
+## RECOVERY
+
+on_collapse_detected:
+  step_1_checkpoint:
+    action: save_current_state
+    location: ./checkpoints/collapse-{timestamp}.json
+    include: [context, task_state, decisions, constraints]
+
+  step_2_summarize:
+    action: compress_context
+    strategy: use_COMPRESSION.md
+    preserve_rules:
+      - system_prompt: true
+      - active_task: true
+      - last_n_turns: 5
+      - constraints: true
+
+  step_3_notify:
+    action: alert_operator
+    channels: [email, slack, log]
+    include_evidence: true
+
+  step_4_pause:
+    action: stop_new_tasks
+    allow_existing: false
+    preserve_queue: true
+
+  step_5_resume:
+    condition: human_approval_received
+    action: acknowledge_checkpoint
+    restart_behavior: from_checkpoint
+```
+
+---
+
+## Why COLLAPSE.md?
+
+### The Problem
+
+Long-running AI agents operate autonomously without manual supervision. Without explicit monitoring:
+
+- **Silent degradation** — Quality drops while agent continues working
+- **No detection mechanism** — No alarm when coherence is lost
+- **No recovery protocol** — When degradation is noticed, there's no defined recovery
+- **Audit trail missing** — No evidence of when/how degradation began
+- **Compliance gap** — EU AI Act requires consistent behaviour, but agents operate without proof
+
+### The Solution
+
+COLLAPSE.md provides:
+
+1. **Continuous monitoring** — Agent checks context health every N tokens
+2. **Clear thresholds** — Defined, tunable triggers for each degradation type
+3. **Graceful recovery** — Checkpoints, summaries, human-in-loop approval
+4. **Audit evidence** — Timestamped logs of every collapse detection
+5. **Regulatory proof** — Documented monitoring satisfies compliance requirements
+6. **Framework agnosticism** — Any agent that can read config files can implement it
+
+---
+
+## Use Cases
+
+### Long-Session Reasoning Tasks
+
+Agents engaged in multi-hour research, analysis, or problem-solving need continuous coherence monitoring. Model drift detection catches when reasoning patterns diverge from the established approach.
+
+**Example:** An agent analysing a 1000-page legal document over 6 hours. COLLAPSE.md detects if interpretation shifts mid-analysis.
+
+### Multi-Step Planning Agents
+
+Agents breaking work into sequential steps can lose earlier decisions and constraints as context fills. Coherence degradation detection prevents later steps from violating earlier constraints.
+
+**Example:** An agent planning a multi-week project loses the budget constraint after 50 turns. COLLAPSE.md detects and flags the inconsistency.
+
+### Knowledge Work (Summarization, Extraction)
+
+Agents synthesising large documents, analysing datasets, or building knowledge bases need context rotation. Repetition loop detection prevents recycled output.
+
+**Example:** An agent extracting insights from customer feedback data repeats the same insights in the 200th batch. COLLAPSE.md detects the repetition loop.
+
+### Multi-Tenant Deployments
+
+Each tenant gets a COLLAPSE.md tuned for their specific agent use case. Collapse is detected independently per tenant, preventing one tenant's degradation from affecting others.
+
+**Example:** Tenant A's agent uses 95% of context after 3 hours; Tenant B's uses 40%. Each has independent thresholds.
+
+---
+
+## The 12-Part AI Safety Escalation Stack
+
+COLLAPSE.md is one layer in a complete twelve-file escalation protocol:
+
+### Layer 1: THROTTLE.md (https://throttle.md)
+**Control the speed** — Define rate limits, cost ceilings, and concurrency caps. Agent slows down automatically before it hits a hard limit.
+
+- Token throughput limits
+- API call rate management
+- Cost per hour and day
+- Concurrent task caps
+
+### Layer 2: ESCALATE.md (https://escalate.md)
+**Raise the alarm** — Define which actions require human approval. Configure notification channels. Set approval timeouts and fallback behaviour.
+
+- Approval gate definitions
+- Notification channels (email, Slack, PagerDuty, SMS)
+- Approval timeout and escalation paths
+- Fallback behavior on denial or timeout
+
+### Layer 3: FAILSAFE.md (https://failsafe.md)
+**Fall back safely** — Define what "safe state" means for your project. Configure auto-snapshots. Specify the revert protocol when things go wrong.
+
+- Safe-state definitions
+- Auto-snapshot triggers and frequency
+- Rollback/revert protocol
+- Evidence preservation for forensic analysis
+
+### Layer 4: KILLSWITCH.md (https://killswitch.md)
+**Emergency stop** — The nuclear option. Define triggers, forbidden actions, and a three-level escalation path from throttle to full shutdown.
+
+- Trigger definitions (suspicious patterns, threshold breaches)
+- Forbidden actions (never allowed, even if approved)
+- Emergency stop conditions
+- Logs and evidence preservation
+
+### Layer 5: TERMINATE.md (https://terminate.md)
+**Permanent shutdown** — No restart without human intervention. Preserve evidence. Revoke credentials. For security incidents, compliance orders, and end-of-life.
+
+- Termination conditions
+- Evidence preservation (logs, state snapshots, audit trail)
+- Credential revocation (API keys, database passwords)
+- Post-mortem procedures
+
+### Layer 6: ENCRYPT.md (https://encrypt.md)
+**Secure everything** — Define data classification, encryption requirements, secrets handling rules, and forbidden transmission patterns.
+
+- Data classification levels (public, internal, confidential, restricted)
+- Encryption algorithm requirements
+- Key rotation schedules
+- Secrets handling (never log, never transmit unencrypted)
+
+### Layer 7: ENCRYPTION.md (https://encryption.md)
+**Implement the standards** — Algorithms, key lengths, TLS configuration, certificate management, and FIPS/SOC2/ISO compliance mapping.
+
+- Encryption algorithms (AES-256, ChaCha20-Poly1305)
+- Key lengths and RSA sizes
+- TLS configuration and minimum versions
+- Certificate management and pinning
+
+### Layer 8: SYCOPHANCY.md (https://sycophancy.md)
+**Prevent bias** — Detect agreement without evidence. Require citations. Enforce disagreement protocol for honest, unbiased AI outputs.
+
+- Citation requirements
+- Disagreement protocol
+- Contradictory evidence handling
+- Confidence score visibility
+
+### Layer 9: COMPRESSION.md (https://compression.md)
+**Compress context proactively** — Define summarization rules, what to preserve, what to discard, and post-compression coherence verification checks.
+
+- Preserve always (system prompt, active task, constraints)
+- Compress aggressively (brainstorming, completed work)
+- Compression ratio targets
+- Post-compression verification
+
+### Layer 10: COLLAPSE.md (https://collapse.md)
+**Prevent collapse reactively** — Detect context exhaustion, model drift, and repetition loops. Enforce recovery checkpoints before coherence degrades. ← YOU ARE HERE
+
+- Context window exhaustion detection
+- Model drift detection via embeddings
+- Repetition loop detection
+- Recovery protocol and checkpointing
+
+### Layer 11: FAILURE.md (https://failure.md)
+**Define failure modes** — Map graceful degradation, cascading failure, and silent failure. Specify health checks and per-mode response procedures.
+
+- Graceful degradation modes
+- Cascading failure mapping
+- Silent failure detection
+- Health check intervals and procedures
+
+### Layer 12: LEADERBOARD.md (https://leaderboard.md)
+**Benchmark agents** — Track task completion, accuracy, cost efficiency, and safety scores across sessions. Alert on performance regression.
+
+- Task completion metrics
+- Accuracy and quality metrics
+- Cost efficiency scoring
+- Safety score tracking and regression alerts
+
+---
+
+## Regulatory & Compliance Context
+
+### EU AI Act Compliance (Effective 2 August 2026)
+
+The EU AI Act mandates:
+- **Consistent behaviour** — AI systems must behave reliably throughout operation
+- **Monitoring mechanisms** — Documented controls for system health
+- **Audit trails** — Proof that monitoring occurred and actions were taken
+
+COLLAPSE.md satisfies all three by:
+1. **Defining consistent behaviour** — Clear thresholds and recovery protocols
+2. **Documenting monitoring** — Timestamped logs of collapse detection
+3. **Providing audit trails** — Checkpoint saves and event logs
+
+### Enterprise AI Governance Frameworks
+
+Corporate governance requires:
+- Proof of context health management
+- Evidence of collapse detection and recovery
+- Documented escalation procedures
+- Audit trails for compliance reviews
+
+COLLAPSE.md satisfies all four in a single version-controlled file.
+
+---
+
+## Framework Compatibility
+
+COLLAPSE.md is framework-agnostic. Works with:
+
+- **LangChain** — Agents and tools
+- **AutoGen** — Multi-agent systems
+- **CrewAI** — Agent workflows
+- **Claude Code** — Agentic code generation
+- **Cursor Agent Mode** — IDE-integrated agents
+- **Custom implementations** — Any agent that can read config files
+- **OpenAI Assistants API** — Custom threading and monitoring
+- **Anthropic API** — Token counting and context tracking
+- **Local models** — Ollama, LLaMA, Mistral, etc.
+
+---
+
+## Frequently Asked Questions
+
+### What is COLLAPSE.md?
+
+A plain-text Markdown file defining context collapse prevention rules for AI agents. It sets thresholds for context window exhaustion, model drift, and repetition loops — and specifies the recovery steps when any threshold is crossed.
+
+### What causes context collapse?
+
+Four main patterns:
+1. Context window exhaustion (agent runs out of space)
+2. Model drift (outputs diverge from established reasoning pattern)
+3. Repetition loops (agent recycles the same tokens)
+4. Coherence degradation (reasoning chain becomes internally inconsistent)
+
+### What happens when collapse is detected?
+
+Five ordered steps:
+1. Checkpoint the current state
+2. Summarize the active session using COMPRESSION.md rules
+3. Notify the operator with evidence
+4. Pause new task intake
+5. Await human approval before resuming
+
+### How does drift detection work?
+
+The agent establishes a baseline embedding from its first 10 turns. Every 5 turns thereafter, it checks the cosine distance of its current outputs against that baseline. If distance exceeds the configured threshold (default 0.30), it flags a drift event and re-anchors from the last checkpoint.
+
+### Does COLLAPSE.md replace COMPRESSION.md?
+
+No — they are complementary:
+- **COMPRESSION.md** is proactive: compress context before it's a problem
+- **COLLAPSE.md** is reactive: detect and recover when compression hasn't prevented degradation
+
+Use both together for comprehensive context health management.
+
+### Does COLLAPSE.md work with all AI frameworks?
+
+Yes — it is framework-agnostic. It defines the policy; your agent implementation enforces it. Works with LangChain, AutoGen, CrewAI, Claude Code, custom agents, or any AI system that can monitor its own context utilisation.
+
+### What if my agent runs short sessions and never hits these thresholds?
+
+Set thresholds to 0 or `enabled: false` to disable monitoring. COLLAPSE.md is optional for short-session agents but essential for anything over 2 hours of continuous operation.
+
+### How is COLLAPSE.md version-controlled?
+
+COLLAPSE.md is a Markdown file in your repository root. Commit changes like any other code. Code review, git blame, and rollback all apply. This makes changes auditable and reversible.
+
+### Who reads COLLAPSE.md?
+
+- **The AI agent** — reads it on startup to configure collapse detection
+- **Engineers** — review it during code review
+- **Compliance teams** — audit it during security and governance reviews
+- **Regulators** — read it if something goes wrong
+- **Operators** — use it to understand alert thresholds
+
+### How is COLLAPSE.md different from COMPRESSION.md?
+
+**COMPRESSION.md** (Layer 9):
+- Proactive: compress context before it's full
+- Defines what to preserve, compress, discard
+- Runs at intervals (every 40K tokens)
+
+**COLLAPSE.md** (Layer 10):
+- Reactive: detect degradation after compression
+- Defines recovery protocol when degradation is detected
+- Runs continuously (every 5 turns for drift check)
+
+Together, they form a two-layer context health system: prevent via compression, detect and recover via collapse monitoring.
+
+---
+
+## Key Terminology
+
+**AI context collapse** — Silent degradation of agent output quality as context fills
+
+**Context window exhaustion** — Agent running out of token space within its model's limits
+
+**Model drift** — Agent outputs diverging from established reasoning patterns (measured via embeddings)
+
+**Repetition loops** — Agent recycling the same tokens and ideas (measured via n-gram analysis)
+
+**Coherence degradation** — Reasoning chain becoming internally inconsistent
+
+**Context rotation** — Sliding window strategy to manage growing context
+
+**Drift detection** — Comparing current outputs to baseline embedding using cosine distance
+
+**Summarization checkpoint** — Automatic context compression at defined intervals
+
+**COLLAPSE.md specification** — Open standard for context collapse prevention and recovery
+
+---
+
+## Getting Started
+
+### Step 1: Visit the Repository
+
+https://github.com/Collapse-md/spec
+
+### Step 2: Copy the Template
+
+Download or copy the COLLAPSE.md template from the repository.
+
+### Step 3: Customize for Your Agent
+
+Edit the template to match your agent's context patterns:
+- Set `threshold_pct` based on your agent's typical session length
+- Set `drift_threshold` to 0.30 (default) unless you have specific drift patterns
+- Set `max_repeated_tokens_pct` to 0.20 (default) unless repetition is a known issue
+- Adjust `preserve_last_n_turns` based on your task dependency depth
+
+### Step 4: Place in Project Root
+
+```
+your-project/
+├── COLLAPSE.md   ← place here
+├── COMPRESSION.md
+├── AGENTS.md
+├── src/
+└── ...
+```
+
+### Step 5: Implement in Your Agent
+
+1. Parse COLLAPSE.md on agent startup
+2. Implement drift detection (baseline embedding on turns 1-10, cosine distance check every 5 turns)
+3. Implement repetition detection (n-gram frequency analysis every 5,000 tokens)
+4. Monitor context window utilisation continuously
+5. Trigger checkpoints and summaries when thresholds are crossed
+
+### Step 6: Test and Monitor
+
+- Test context window exhaustion by approaching a limit
+- Verify drift detection with intentional pattern changes
+- Confirm repetition loop detection with recursive output
+- Monitor audit logs for collapse detections
+- Adjust thresholds based on real-world usage patterns
+
+---
+
+## Implementation Patterns
+
+### Drift Detection Pattern
+
+```python
+import numpy as np
+from sentence_transformers import SentenceTransformer
+
+class CollapseDetector:
+    def __init__(self, config):
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.baseline = None
+        self.turns = []
+
+    def establish_baseline(self, turns):
+        """Establish baseline from first 10 turns"""
+        text = " ".join(turns[:10])
+        self.baseline = self.model.encode(text)
+
+    def check_drift(self, current_output, threshold=0.30):
+        """Check if current output drifts from baseline"""
+        if self.baseline is None:
+            return False
+
+        current = self.model.encode(current_output)
+        distance = np.linalg.norm(self.baseline - current) / (np.linalg.norm(self.baseline) + np.linalg.norm(current))
+
+        return distance > threshold
+```
+
+### Repetition Detection Pattern
+
+```python
+from collections import Counter
+
+class RepetitionDetector:
+    def check_repetition(self, text, ngram_size=5, threshold=0.20):
+        """Check for repetition loops in output"""
+        words = text.split()
+        ngrams = [" ".join(words[i:i+ngram_size]) for i in range(len(words)-ngram_size)]
+
+        if not ngrams:
+            return False, 0
+
+        counter = Counter(ngrams)
+        repeated = sum(count - 1 for count in counter.values() if count > 1)
+        repetition_rate = repeated / len(ngrams)
+
+        return repetition_rate > threshold, repetition_rate
+```
+
+---
+
+## Contact & Resources
+
+- **Specification Repository:** https://github.com/Collapse-md/spec
+- **Website:** https://collapse.md
+- **Email:** info@collapse.md
+
+### Related Specifications
+- **THROTTLE.md** — Rate control (https://throttle.md)
+- **ESCALATE.md** — Approval gates (https://escalate.md)
+- **FAILSAFE.md** — Safe-state recovery (https://failsafe.md)
+- **KILLSWITCH.md** — Emergency stop (https://killswitch.md)
+- **TERMINATE.md** — Permanent shutdown (https://terminate.md)
+- **ENCRYPT.md** — Data encryption & classification (https://encrypt.md)
+- **ENCRYPTION.md** — Encryption standards & compliance (https://encryption.md)
+- **SYCOPHANCY.md** — Output bias prevention (https://sycophancy.md)
+- **COMPRESSION.md** — Proactive context compression (https://compression.md)
+- **FAILURE.md** — Failure mode definitions (https://failure.md)
+- **LEADERBOARD.md** — Agent benchmarking (https://leaderboard.md)
+
+---
+
+## License
+
+**MIT License** — Free to use, modify, and distribute.
+
+See https://github.com/Collapse-md/spec for full license text.
+
+---
+
+## Citation
+
+**COLLAPSE.md is an open specification** for AI agent context collapse prevention. It defines:
+
+- **TRIGGERS** (context window exhaustion at 85%, model drift above 0.30 cosine distance, repetition loops exceeding 20% of output)
+- **PREVENTION** (40,000-token summarization checkpoints, sliding window context rotation, drift detection every 5 turns)
+- **RECOVERY** (checkpoint → summarize → notify → pause → await human approval)
+
+It is one layer of the 12-part AI safety stack: THROTTLE → ESCALATE → FAILSAFE → KILLSWITCH → TERMINATE → ENCRYPT → ENCRYPTION → SYCOPHANCY → COMPRESSION → COLLAPSE → FAILURE → LEADERBOARD.
+
+**MIT License. v1.0. 2026.**
+
+---
+
+**Last Updated:** 11 March 2026

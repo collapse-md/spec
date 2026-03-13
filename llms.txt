@@ -1,0 +1,168 @@
+# COLLAPSE.md — AI Agent Context Collapse Prevention
+
+## Overview
+COLLAPSE.md is an open file convention for detecting and preventing context collapse in long-running AI agents. It defines thresholds for context window exhaustion, model drift, and repetition loops — and specifies the recovery steps when degradation is detected.
+
+**Home:** https://collapse.md
+**Repository:** https://github.com/Collapse-md/spec
+**Related Specifications:** https://throttle.md, https://escalate.md, https://failsafe.md, https://killswitch.md, https://terminate.md, https://encrypt.md, https://encryption.md, https://sycophancy.md, https://compression.md, https://failure.md, https://leaderboard.md
+
+## Key Concepts
+
+### The Context Collapse Problem
+AI agents operating in long sessions face a hidden failure mode: as context fills, output quality degrades silently. The agent continues generating text, but reasoning becomes circular, facts get confused, and earlier instructions are forgotten. Without explicit detection, there's no mechanism to notice or recover.
+
+### Four Types of Context Degradation
+1. **Context Window Exhaustion** — Agent runs out of token space
+2. **Model Drift** — Agent outputs diverge from established reasoning patterns
+3. **Repetition Loops** — Agent recycles the same tokens and ideas
+4. **Coherence Degradation** — Reasoning chain becomes internally inconsistent
+
+### The Recovery Protocol
+When collapse is detected:
+1. Checkpoint the current state
+2. Summarize the active session
+3. Notify the operator
+4. Pause new tasks
+5. Await human approval before resuming
+
+## How It Works
+
+### TRIGGERS Section
+Define thresholds for each collapse type:
+
+- `context_window_exhaustion:` threshold at 85%, action: summarize_and_rotate
+- `model_drift:` threshold at 0.30 cosine distance, action: reset_and_checkpoint
+- `repetition_loops:` threshold at 20% of output, action: interrupt_and_log
+
+### PREVENTION Section
+Proactive controls before collapse:
+
+- `summarization_checkpoints:` Every 40,000 tokens, preserve last 5 turns verbatim
+- `context_rotation:` Sliding window strategy, 80,000-token window size
+- `drift_detection:` Establish baseline from first 10 turns, check every 5 turns
+
+### RECOVERY Section
+Actions after collapse detected:
+
+- Save state snapshots before summarization
+- Compress context using COMPRESSION.md rules
+- Notify operator with evidence logs
+- Pause all new task intake
+- Resume only after explicit human approval
+
+## Why COLLAPSE.md?
+
+### The Problem It Solves
+Long-running AI agents autonomously consume context as they work. Without explicit monitoring:
+- Quality degrades silently while agent continues operating
+- Model drift goes undetected until outputs are clearly wrong
+- Repetition patterns accumulate unnoticed
+- Coherence checks exist nowhere
+- No audit trail of when degradation began
+
+### How COLLAPSE.md Fixes It
+1. **Proactive Detection** — Continuous monitoring of context health
+2. **Clear Thresholds** — Defined triggers for each degradation type
+3. **Graceful Recovery** — Checkpoints, summaries, and human-in-loop approval
+4. **Audit Trail** — Every collapse detection is logged with evidence
+5. **Regulatory Alignment** — EU AI Act requires consistent behaviour monitoring
+6. **Framework-Agnostic** — Works with any AI system that can read config files
+
+## Use Cases
+
+### Long-Session Reasoning Tasks
+Agents engaged in multi-hour reasoning, research, or problem-solving need continuous coherence monitoring. COLLAPSE.md detects drift before reasoning diverges irreversibly.
+
+### Multi-Step Planning
+Agents breaking work into steps can lose track of earlier decisions and constraints. Drift detection catches when outputs diverge from established planning patterns.
+
+### Knowledge Work
+Agents synthesising large documents, analysing datasets, or building summaries need context management. Repetition loop detection prevents recycled output.
+
+### Multi-Tenant Deployments
+Each tenant gets a COLLAPSE.md tuned for their expected context patterns. Failures are isolated and recoverable.
+
+## The 12-Part AI Safety Escalation Stack
+
+COLLAPSE.md is part of a twelve-file escalation protocol:
+
+1. **THROTTLE.md** (https://throttle.md) — Slow down (reduce rate/throughput)
+2. **ESCALATE.md** (https://escalate.md) — Raise alarm (seek approval, notify)
+3. **FAILSAFE.md** (https://failsafe.md) — Fall back safely (revert to known good state)
+4. **KILLSWITCH.md** (https://killswitch.md) — Emergency stop (halt all activity)
+5. **TERMINATE.md** (https://terminate.md) — Permanent shutdown (no restart)
+6. **ENCRYPT.md** (https://encrypt.md) — Secure everything (data classification & encryption)
+7. **ENCRYPTION.md** (https://encryption.md) — Implement the standards (algorithms, keys, compliance)
+8. **SYCOPHANCY.md** (https://sycophancy.md) — Prevent bias (require citations, enforce disagreement)
+9. **COMPRESSION.md** (https://compression.md) — Compress context proactively
+10. **COLLAPSE.md** (https://collapse.md) — Prevent collapse reactively ← YOU ARE HERE
+11. **FAILURE.md** (https://failure.md) — Define graceful degradation and failure modes
+12. **LEADERBOARD.md** (https://leaderboard.md) — Benchmark agents (task completion, accuracy, cost, safety)
+
+## Regulatory Context
+
+**EU AI Act** (effective 2 August 2026): Mandates consistent behaviour and monitoring throughout AI system operation. COLLAPSE.md provides the documented controls and audit trail.
+
+**Enterprise AI Governance**: Requires proof of coherence monitoring, context health management, and recovery protocols for long-running agents.
+
+**Gartner AI Agent Report** (2025): Identifies output quality consistency as critical for enterprise adoption.
+
+## Framework Compatibility
+
+COLLAPSE.md is framework-agnostic. Works with:
+- **LangChain** — Agents and tools
+- **AutoGen** — Multi-agent systems
+- **CrewAI** — Agent workflows
+- **Claude Code** — Agentic code generation
+- **Custom implementations** — Any agent that can read config files and monitor context
+
+## Getting Started
+
+1. Copy template from https://github.com/Collapse-md/spec
+2. Place COLLAPSE.md in project root
+3. Implement drift detection using cosine distance on embeddings
+4. Add context window utilisation monitoring
+5. Implement repetition loop detection via n-gram analysis
+6. Add checkpointing and recovery workflow
+7. Test collapse detection and recovery procedures
+
+## Key Terms
+
+**AI context collapse** — Silent degradation of agent output quality as context fills
+**Context window exhaustion** — Agent running out of token space
+**Model drift** — Agent outputs diverging from established reasoning patterns
+**Repetition loops** — Agent recycling the same tokens and ideas
+**Coherence degradation** — Reasoning chain becoming internally inconsistent
+**Context rotation** — Sliding window strategy to manage growing context
+**Drift detection** — Comparing current outputs to baseline embedding
+**Summarization checkpoint** — Automatic context compression at defined intervals
+**COLLAPSE.md specification** — Open standard for context collapse prevention
+
+## Contact & Resources
+
+- **Specification Repository:** https://github.com/Collapse-md/spec
+- **Website:** https://collapse.md
+- **Email:** info@collapse.md
+
+### Related Specifications
+- **THROTTLE.md** (https://throttle.md) — Rate control
+- **ESCALATE.md** (https://escalate.md) — Approval gates
+- **FAILSAFE.md** (https://failsafe.md) — Safe-state recovery
+- **KILLSWITCH.md** (https://killswitch.md) — Emergency stop
+- **TERMINATE.md** (https://terminate.md) — Permanent shutdown
+- **ENCRYPT.md** (https://encrypt.md) — Data encryption & classification
+- **ENCRYPTION.md** (https://encryption.md) — Encryption standards & compliance
+- **SYCOPHANCY.md** (https://sycophancy.md) — Output bias prevention
+- **COMPRESSION.md** (https://compression.md) — Proactive context compression
+- **FAILURE.md** (https://failure.md) — Failure mode definitions
+- **LEADERBOARD.md** (https://leaderboard.md) — Agent benchmarking
+
+## License
+
+**MIT License** — Free to use, modify, and distribute. See https://github.com/Collapse-md/spec for full license text.
+
+---
+
+**Last Updated:** 11 March 2026
+**Status:** Open Standard v1.0
